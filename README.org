@@ -1,5 +1,7 @@
 #+title: frame-workflow.el: Per-Frame Workflow on Emacs
 
+[[https://travis-ci.org/akirak/frame-workflow.svg?branch=master]]
+
 =Frame-workflow.el= lets you define and organize per-frame workflow for Emacs. This is yet another workspace solution such as eyebrowse, perspective, and framegroups. It is frame-oriented and supports frame-specific states and actions. It is also designed to integrate with [[https://github.com/alphapapa/frame-purpose.el][frame-purpose.el]] which lets you focus on particular things inside a frame.
 
 * Rationale
