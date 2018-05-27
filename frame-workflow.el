@@ -356,7 +356,7 @@ This feature is used in frame-workflow-purpose.el."
         (when (or arg (frame-workflow--confirm-new-frame name))
           (frame-workflow--set-parameters name plist)
           (frame-workflow--init-state plist)
-          (run-hooks frame-workflow-set-prototype-hook))))))
+          (run-hooks 'frame-workflow-set-prototype-hook))))))
 
 ;;;;; Creating a frame from a prototype
 
