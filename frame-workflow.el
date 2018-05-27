@@ -162,7 +162,7 @@ to the custom file. With ARG, it saves without confirmation."
     (cl-etypecase action
       (symbol (call-interactively action))
       (function (funcall action))
-      (listp (eval action)))))
+      (list (eval action)))))
 
 (defun frame-workflow--action-to-command (action)
   "Execute an ACTION represented as either a command symbol or an expression."
@@ -415,18 +415,17 @@ list, and a new frame of the prototype is created."
 ;;;###autoload
 (defun frame-workflow-mode-line ()
   "Build the modeline string on the frame workflow."
-  (if (frame-workflow--has-workflow)
-      (let ((name (frame-workflow--prototype-name))
-            (state (frame-workflow-get-state)))
-        (format frame-workflow-mode-line-format
-                (concat (if name
-                            (symbol-name name)
-                          "Unnamed")
-                        (if state
-                            (format frame-workflow-mode-line-state-format
-                                    (frame-workflow--format-state state))
-                          ""))))
-    nil))
+  (when (frame-workflow--has-workflow)
+    (let ((name (frame-workflow--prototype-name))
+          (state (frame-workflow-get-state)))
+      (format frame-workflow-mode-line-format
+              (concat (if name
+                          (symbol-name name)
+                        "Unnamed")
+                      (if state
+                          (format frame-workflow-mode-line-state-format
+                                  (frame-workflow--format-state state))
+                        ""))))))
 
 ;;;; Keymap
 (defvar frame-workflow-map (make-sparse-keymap)
