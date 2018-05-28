@@ -62,7 +62,7 @@
     (`(,_) nil)
     ;; Two workspaces
     (`((,_ . ,w1) (,_ . ,w2)) (list w1 w2))
-    ;; FIXME: Select two workspaces and swap them
+    ;; More than two workspaces: Select two via completing-read
     (wss (let* ((selections (frame-workflow-exwm--2-combinations wss))
                 (candidates (cl-loop for ((i1 . w1) (i2 . w2)) in selections
                                      collect (cons (concat (frame-workflow-exwm--format-with-index i1 w1)
