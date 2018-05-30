@@ -81,8 +81,11 @@ W1 and W2 are frames.
 
 If this function is called interactively, the user can select two workspaces
 from visible workspaces."
-  (interactive (frame-workflow-exwm--select-two-visible-workspaces))
-  (exwm-workspace-swap w1 w2))
+  (interactive (or (frame-workflow-exwm--select-two-visible-workspaces)
+                   '(nil nil)))
+  (if (and (framep w1) (framep w2))
+      (exwm-workspace-swap w1 w2)
+    (message "There is only one visible frame.")))
 
 (provide 'frame-workflow-exwm)
 ;;; frame-workflow-exwm.el ends here
