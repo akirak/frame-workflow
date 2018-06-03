@@ -191,7 +191,7 @@ If there are multiple frames of the subject, this returns only the first one."
                       (string (frame-workflow--find-subject subject))
                       (frame-workflow-subject subject))))
       (frame-workflow--make-frame subject)
-    (error "There is no subject named %s" subject)))
+    (user-error "There is no subject named %s" subject)))
 
 (defun frame-workflow-select-frame (subject)
   "Select a frame of workflow SUBJECT."
