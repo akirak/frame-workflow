@@ -40,7 +40,7 @@
 (defvar frame-workflow--subject-list nil "Used by `eieio-instance-tracker'.")
 (defvar frame-workflow--observer-list nil "Used by `eieio-instance-tracker'.")
 
-;;;; Frame types
+;;;; Subjects
 
 (defclass frame-workflow-subject (eieio-instance-tracker
                                   eieio-instance-inheritor
@@ -87,7 +87,7 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
     (set-frame-parameter frame 'workflow observer)
     frame))
 
-;;;; Frames
+;;;; Observers
 
 (defclass frame-workflow-observer (eieio-instance-tracker)
   ((tracking-symbol :initform frame-workflow--observer-list)
@@ -104,7 +104,7 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
 (cl-defmethod frame-workflow--subject-name ((obj frame-workflow-observer))
   (oref (oref obj subject) name))
 
-;;;;; Utility functions
+;;;; Utility functions
 
 (defun frame-workflow--subject-names ()
   "Return a list of names lf all subject objects."
