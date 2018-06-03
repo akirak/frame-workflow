@@ -40,6 +40,45 @@
 (defvar frame-workflow--subject-list nil "Used by `eieio-instance-tracker'.")
 (defvar frame-workflow--observer-list nil "Used by `eieio-instance-tracker'.")
 
+;;;;; Modeline
+
+(defcustom frame-workflow-mode-line
+  '(:eval (concat " Frame"
+                  ;; TODO: Make this a separate function
+                  (if-let ((name (frame-workflow--frame-subject-name)))
+                      (format "[%s]" name)
+                    "")))
+  "Mode line lighter for frame-workflow."
+  :group 'frame-workflow
+  :type 'sexp
+  :risky t)
+
+;;;; Minor mode
+
+(define-minor-mode frame-workflow-mode
+  "Toggle `frame-workflow-mode`."
+  :global t
+  :group 'frame-workflow
+  :require 'frame-workflow
+  :lighter frame-workflow-mode-line
+  :init-value nil
+  (if frame-workflow-mode
+      (frame-workflow--enable)
+    (frame-workflow--disable)))
+
+(defun frame-workflow--enable ()
+  "Turn on `frame-workflow-mode'."
+  (add-hook 'delete-frame-functions 'frame-workflow--delete-frame t))
+
+(defun frame-workflow--disable ()
+  "Turn on `frame-workflow-mode'."
+  (remove-hook 'delete-frame-functions 'frame-workflow--delete-frame))
+
+(defun frame-workflow--delete-frame (frame)
+  "Run hooks for frame-workflow on deleting FRAME."
+  (when-let ((observer (frame-parameter frame 'workflow)))
+    (delete-instance observer)))
+
 ;;;; Subjects
 
 (defclass frame-workflow-subject (eieio-instance-tracker
@@ -120,12 +159,24 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
            unless (equal (oref instance frame) (selected-frame))
            collect (frame-workflow--subject-name instance)))
 
+(defun frame-workflow--frame-observer (&optional frame)
+  "Return the observer of FRAME if it has one."
+  (let ((obj (frame-parameter frame 'workflow)))
+    (when (frame-workflow-observer-p obj)
+      obj)))
+
+(defun frame-workflow--frame-subject-name (&optional frame)
+  (when-let ((observer (frame-workflow--frame-observer frame)))
+    (frame-workflow--subject-name observer)))
+
 ;;;; Interactive commands
 
 (defun frame-workflow-make-frame (subject)
   "Create a frame of workflow SUBJECT."
   (interactive (list (completing-read "Create a frame: "
                                       (frame-workflow--subject-names))))
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
   (if-let ((subject (cl-etypecase subject
                       (string (frame-workflow--find-subject subject))
                       (frame-workflow-subject subject))))
@@ -136,6 +187,8 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
   "Select a frame of workflow SUBJECT."
   (interactive (list (completing-read "Select a frame: "
                                       (frame-workflow--other-frame-subject-names))))
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
   (when-let ((frame (eieio-instance-tracker-find subject
                                                  'subject-name
                                                  'frame-workflow--observer-list)))
@@ -146,12 +199,16 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
   "Select or create a frame of workflow SUBJECT."
   (interactive (list (completing-read "Select or create a frame: "
                                       (frame-workflow--subject-names))))
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
   (or (frame-workflow-select-frame subject)
       (frame-workflow-make-frame subject)))
 
 (defun frame-workflow-identify ()
   "Display information on the workflow of the selected frame."
   (interactive)
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
   (if-let ((workflow (frame-parameter nil 'workflow)))
       (message (frame-workflow--subject-name workflow))
     (message "No workflow")))
