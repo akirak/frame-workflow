@@ -166,8 +166,18 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
       obj)))
 
 (defun frame-workflow--frame-subject-name (&optional frame)
+  "Get the subject name of FRAME."
   (when-let ((observer (frame-workflow--frame-observer frame)))
     (frame-workflow--subject-name observer)))
+
+(defun frame-workflow--find-frame-by-subject (name)
+  "Find a frame by the NAME of a subject.
+
+If there are multiple frames of the subject, this returns only the first one."
+  (when-let ((subject (frame-workflow--find-subject name))
+             (observer (eieio-instance-tracker-find subject 'subject
+                                                    'frame-workflow--observer-list)))
+    (oref observer frame)))
 
 ;;;; Interactive commands
 
@@ -189,10 +199,9 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
                                       (frame-workflow--other-frame-subject-names))))
   (unless frame-workflow-mode
     (user-error "Please turn on `frame-workflow-mode'"))
-  (when-let ((frame (eieio-instance-tracker-find subject
-                                                 'subject-name
-                                                 'frame-workflow--observer-list)))
-    (select-frame frame)
+  (when-let ((frame (frame-workflow--find-frame-by-subject subject)))
+    ;; TODO: Make this customizable
+    (select-frame-set-input-focus frame)
     frame))
 
 (defun frame-workflow-switch-frame (subject)
