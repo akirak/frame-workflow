@@ -71,7 +71,7 @@
   (add-hook 'delete-frame-functions 'frame-workflow--delete-frame t))
 
 (defun frame-workflow--disable ()
-  "Turn on `frame-workflow-mode'."
+  "Turn off `frame-workflow-mode'."
   (remove-hook 'delete-frame-functions 'frame-workflow--delete-frame))
 
 (defun frame-workflow--delete-frame (frame)
