@@ -98,7 +98,7 @@
    ;; (layout :initarg :layout
    ;;         :documentation "S-expression evalated to set up windows in each frame.")
    (make-frame :initarg :make-frame
-               :type function
+               :type (or function list)
                :initform #'make-frame
                :documentation "A function that returns a new frame."))
   "An object that specifies workflow on a frame.")
@@ -118,7 +118,10 @@ ARGS is a plist of arguments passed to `frame-workflow-subject'."
 
 SUBJECT is an object of `frame-workflow-subject' class or its subclass."
   (let* ((observer-class (oref subject observer-class))
-         (frame (funcall (oref subject make-frame)))
+         (local-make-frame (oref subject make-frame))
+         (frame (cl-etypecase local-make-frame
+                  (function (funcall local-make-frame))
+                  (list (eval local-make-frame))))
          (observer (make-instance (if (fboundp observer-class)
                                       observer-class
                                     'frame-workflow-observer)
