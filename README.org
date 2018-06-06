@@ -7,16 +7,24 @@
 * Installation
 This package requires Emacs 25.1.
 
-The package is not available on MELPA at present, but it may be added in the future. Clone the repository and add the directory to =load-path=.
+The package is not available on MELPA at present, but it may be added in the future. Clone the repository and add the directory to =load-path=. Below is an example of MELPA-style recipe:
 
-It depends on the following packages. You have to install them as well:
-
-- [[https://github.com/magnars/dash.el][dash.el]]
-- [[https://github.com/alphapapa/frame-purpose.el][frame-purpose.el]] if you use an integration with the package
-
+#+BEGIN_SRC emacs-lisp
+  (frame-workflow :fetcher github
+                  :repo "akirak/frame-workflow"
+                  :branch "eieio")
+#+END_SRC
 * Configuration
 1. Load =frame-workflow.el=
 2. Turn on =frame-workflow-mode=
+
+An example with =use-package=:
+
+#+BEGIN_SRC emacs-lisp
+  (use-package frame-workflow
+    :config
+    (frame-workflow-mode 1))
+#+END_SRC
 
 ** Subjects (or workspaces)
 A /subject/ is a type of frame in frame-workflow. You can create one frame or multiple frames for a subject.
@@ -24,7 +32,8 @@ A /subject/ is a type of frame in frame-workflow. You can create one frame or mu
 To define a subject, use =frame-workflow-define-subject=:
 
 #+BEGIN_SRC emacs-lisp
-  (frame-workflow-define-subject "emacs-lisp")
+  (frame-workflow-define-subject "emacs-lisp"
+    :make-frame '(frame-purpose-make-mode-frame 'emacs-lisp-mode))
 #+END_SRC
 
 Every frame subject requires a name, which is a string to uniquely identify the subject.
