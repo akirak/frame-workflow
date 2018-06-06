@@ -110,11 +110,11 @@ NAME is a string to uniquely identify the subject.
 
 ARGS is a plist of arguments passed to `frame-workflow-subject'."
   (declare (indent 1))
-  `(let ((existing (frame-workflow--find-subject ,name))
-         (new (make-instance 'frame-workflow-subject :name ,name ,@args)))
-     (when existing
-       (frame-workflow--replace-subject existing new))
-     new))
+  (let ((existing (frame-workflow--find-subject name))
+        (new (apply #'make-instance 'frame-workflow-subject :name name args)))
+    (when existing
+      (frame-workflow--replace-subject existing new))
+    new))
 
 (defun frame-workflow--replace-subject (old new)
   "Replace a subject OLD with NEW.
