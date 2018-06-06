@@ -109,9 +109,23 @@
 NAME is a string to uniquely identify the subject.
 
 ARGS is a plist of arguments passed to `frame-workflow-subject'."
-  ;; TODO: Prevent creating duplicate objects of the same name
   (declare (indent 1))
-  `(make-instance 'frame-workflow-subject :name ,name ,@args))
+  `(let ((existing (frame-workflow--find-subject ,name))
+         (new (make-instance 'frame-workflow-subject :name ,name ,@args)))
+     (when existing
+       (frame-workflow--replace-subject existing new))
+     new))
+
+(defun frame-workflow--replace-subject (old new)
+  "Replace a subject OLD with NEW.
+
+This is used to update a subject of the same name."
+  ;; Replace references to old subjects from observers
+  (cl-loop for observer in frame-workflow--observer-list
+           when (eq (oref observer subject) old)
+           do (oset observer subject new))
+  ;; Delete the old subject from the instance list
+  (delete-instance old))
 
 (cl-defmethod frame-workflow--make-frame ((subject frame-workflow-subject))
   "Create a frame of SUBJECT.
