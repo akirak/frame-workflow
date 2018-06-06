@@ -196,6 +196,11 @@ If there are multiple frames of the subject, this returns only the first one."
                                                     'frame-workflow--observer-list)))
     (oref observer frame)))
 
+(defun frame-workflow--select-frame (frame)
+  "Internal function to select FRAME."
+  ;; TODO: Make this customizable
+  (select-frame-set-input-focus frame))
+
 ;;;; Interactive commands
 
 (defun frame-workflow-make-frame (subject)
@@ -217,8 +222,7 @@ If there are multiple frames of the subject, this returns only the first one."
   (unless frame-workflow-mode
     (user-error "Please turn on `frame-workflow-mode'"))
   (when-let ((frame (frame-workflow--find-frame-by-subject subject)))
-    ;; TODO: Make this customizable
-    (select-frame-set-input-focus frame)
+    (frame-workflow--select-frame frame)
     frame))
 
 (defun frame-workflow-switch-frame (subject)
