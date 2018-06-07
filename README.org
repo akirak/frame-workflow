@@ -15,15 +15,14 @@ The package is not available on MELPA at present, but it may be added in the fut
                   :branch "eieio")
 #+END_SRC
 * Configuration
-1. Load =frame-workflow.el=
-2. Turn on =frame-workflow-mode=
-
-An example with =use-package=:
-
 #+BEGIN_SRC emacs-lisp
-  (use-package frame-workflow
-    :config
-    (frame-workflow-mode 1))
+  (require 'frame-workflow)
+  (frame-workflow-mode 1)
+
+  ;; If you use helm-frame-workflow
+  (autoload 'helm-frame-workflow "helm-frame-workflow")
+  ;; Bind s-B on EXWM
+  (exwm-input-set-key (kbd "s-B") 'helm-frame-workflow)
 #+END_SRC
 
 ** Subjects (or workspaces)
@@ -52,6 +51,9 @@ It is also a command that lets you select a subject via =completing-read=:
   (global-set-key "s-s" 'frame-workflow-switch-frame)
 #+END_SRC
 * Usage
+** helm-frame-workflow
+=helm-frame-workflow= in =helm-frame-workflow.el= is a command which lets you switch to a frame or create a new frame for a subject. It provides access to all the basic features of frame-workflow.
+** Switching the context
 You can use the following commands to switch the context:
 
 - =frame-workflow-make-frame=, which creates a new frame of a given subject.
