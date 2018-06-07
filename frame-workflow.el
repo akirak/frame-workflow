@@ -139,7 +139,7 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
          (observer (make-instance (if (fboundp observer-class)
                                       observer-class
                                     'frame-workflow-observer)
-                                  :type subject :frame frame)))
+                                  :subject subject :frame frame)))
     (set-frame-parameter frame 'workflow observer)
     frame))
 
@@ -147,7 +147,7 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
 
 (defclass frame-workflow-observer (eieio-instance-tracker)
   ((tracking-symbol :initform frame-workflow--observer-list)
-   (subject :initarg :type
+   (subject :initarg :subject
             :type frame-workflow-subject
             :documentation "Frame subject which created this frame.")
    (subject-name :documentation "Name of the frame type."
@@ -164,7 +164,7 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
 
 (defun frame-workflow--subject-names ()
   "Return a list of names lf all subject objects."
-  (mapcar (lambda (obj) (oref obj :name)) frame-workflow--subject-list))
+  (mapcar (lambda (obj) (oref obj name)) frame-workflow--subject-list))
 
 (defun frame-workflow--find-subject (name)
   "Find a subject object with NAME."
