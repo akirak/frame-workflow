@@ -33,7 +33,7 @@ To define a subject, use =frame-workflow-define-subject=:
 
 #+BEGIN_SRC emacs-lisp
   (frame-workflow-define-subject "emacs-lisp"
-    :make-frame (frame-purpose-make-mode-frame 'emacs-lisp-mode))
+    :make-frame '(frame-purpose-make-mode-frame 'emacs-lisp-mode))
 #+END_SRC
 
 Every frame subject requires a name, which is a string to uniquely identify the subject.
