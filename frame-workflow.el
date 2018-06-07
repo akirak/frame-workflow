@@ -103,7 +103,7 @@
                :documentation "A function that returns a new frame."))
   "An object that specifies workflow on a frame.")
 
-(defmacro frame-workflow-define-subject (name &rest args)
+(defun frame-workflow-define-subject (name &rest args)
   "Define a workflow subject.
 
 NAME is a string to uniquely identify the subject.
