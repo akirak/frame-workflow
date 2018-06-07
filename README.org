@@ -52,7 +52,7 @@ It is also a command that lets you select a subject via =completing-read=:
 #+END_SRC
 * Usage
 ** helm-frame-workflow
-=helm-frame-workflow= in =helm-frame-workflow.el= is a command which lets you switch to a frame or create a new frame for a subject. It provides access to all the basic features of frame-workflow.
+=helm-frame-workflow= in =helm-frame-workflow.el= is a command which lets you switch to a frame or create a new frame for a subject. It provides access to all the basic functionalities of frame-workflow.
 ** Switching the context
 You can use the following commands to switch the context:
 
