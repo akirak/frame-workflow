@@ -28,6 +28,12 @@
 (require 'helm)
 (require 'cl-lib)
 
+;;;; Custom variables
+(defcustom helm-frame-workflow-exclude-current-frame t
+  "Exclude the selected frame from candidates."
+  :group 'helm-frame-workflow
+  :type 'boolean)
+
 ;;;; Actions
 (defvar helm-frame-workflow-frame-actions
   '(("Select the frame" . frame-workflow--select-frame))
@@ -42,23 +48,25 @@
 (defclass helm-frame-workflow-frames-class (helm-source-sync)
   ((candidates :initform
                (lambda ()
-                 (mapcar (lambda (observer)
-                           (let* ((frame (oref observer frame))
-                                  (subject (frame-workflow--subject-name observer))
-                                  (title (frame-parameter frame 'name)))
-                             ;; TODO: Customizable format
-                             (cons (format "%-10s : %s" subject title)
-                                   frame)))
-                         frame-workflow--observer-list)))
+                 (helm-frame-workflow--exclude-selected-frame
+                  (mapcar (lambda (observer)
+                            (let* ((frame (oref observer frame))
+                                   (subject (frame-workflow--subject-name observer))
+                                   (title (frame-parameter frame 'name)))
+                              ;; TODO: Customizable format
+                              (cons (format "%-10s : %s" subject title)
+                                    frame)))
+                          frame-workflow--observer-list))))
    (action :initform 'helm-frame-workflow-frame-actions)))
 
 (defclass helm-frame-workflow-no-subject-frames-class (helm-source-sync)
   ((candidates :initform
                (lambda ()
-                 (cl-loop for frame in (frame-list)
-                          unless (frame-parameter frame 'workflow)
-                          collect (cons (frame-parameter frame 'name)
-                                        frame))))
+                 (helm-frame-workflow--exclude-selected-frame
+                  (cl-loop for frame in (frame-list)
+                           unless (frame-parameter frame 'workflow)
+                           collect (cons (frame-parameter frame 'name)
+                                         frame)))))
    (action :initform 'helm-frame-workflow-frame-actions)))
 
 (defclass helm-frame-workflow-subjects-class (helm-source-sync)
@@ -69,6 +77,12 @@
                                  subject))
                          frame-workflow--subject-list)))
    (action :initform 'helm-frame-workflow-subject-actions)))
+
+(defsubst helm-frame-workflow--exclude-selected-frame (candidates)
+  "If necessary, exclude the selected frame from frame CANDIDATES."
+  (if helm-frame-workflow-exclude-current-frame
+      (cl-remove (selected-frame) candidates :key #'cdr :test #'eql)
+    candidates))
 
 ;;;; Concrete sources
 
