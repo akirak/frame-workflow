@@ -40,7 +40,8 @@
   "Alist of actions on a frame.")
 
 (defvar helm-frame-workflow-subject-actions
-  '(("Make a frame" . frame-workflow-make-frame))
+  '(("Make a frame" . frame-workflow-make-frame)
+    ("Edit the subject" . frame-workflow-edit-subject))
   "Alist of actions on a subject.")
 
 ;;;; Classes for sources

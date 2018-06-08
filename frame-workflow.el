@@ -34,6 +34,8 @@
 (require 'eieio)
 (require 'eieio-base)
 (require 'subr-x)
+(autoload 'eieio-customize-object "eieio-custom")
+(require 'frame-workflow-editor)
 
 ;;;; Variables
 
@@ -84,8 +86,7 @@
 (defclass frame-workflow-subject (eieio-instance-tracker
                                   eieio-instance-inheritor
                                   ;; eieio-named
-                                  ;; eieio-persistent
-                                  )
+                                  eieio-persistent)
   ((tracking-symbol :initform frame-workflow--subject-list)
    (name :initarg :name
          :type string
@@ -115,7 +116,9 @@ NAME is a string to uniquely identify the subject.
 ARGS is a plist of arguments passed to `frame-workflow-subject'."
   (declare (indent 1))
   (let ((existing (frame-workflow--find-subject name))
-        (new (apply #'make-instance 'frame-workflow-subject :name name args)))
+        (new (apply #'make-instance 'frame-workflow-subject
+                    :name name :file name
+                    args)))
     (when existing
       (frame-workflow--replace-subject existing new))
     new))
@@ -149,6 +152,11 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
       (with-selected-frame frame
         (eval layout)))
     frame))
+
+;;;;; Interactive editing
+(defun frame-workflow--subject-editor-name (name)
+  "The name of a buffer to edit a subject with NAME."
+  (format "*frame-workflow subject %s*" name))
 
 ;;;; Observers
 
@@ -249,6 +257,27 @@ If there are multiple frames of the subject, this returns only the first one."
   (if-let ((workflow (frame-parameter nil 'workflow)))
       (message (frame-workflow--subject-name workflow))
     (message "No workflow")))
+
+(defun frame-workflow-edit-subject (subject)
+  "Edit the definition of SUBJECT interactively."
+  (interactive (list (completing-read "Edit a subject: "
+                                      (frame-workflow--subject-names))))
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
+  (if-let ((subject (cl-etypecase subject
+                      (frame-workflow-subject subject)
+                      (string (frame-workflow--find-subject subject))))
+           (name (oref subject name)))
+      (frame-workflow-editor-popup (frame-workflow--subject-editor-name name)
+        (lambda ()
+          (let ((standard-output (current-buffer)))
+            (object-write subject)))
+        (lambda ()
+          (let ((tmpfile (make-temp-file name)))
+            (write-file tmpfile)
+            (let ((obj (eieio-persistent-read tmpfile frame-workflow-subject t)))
+              (frame-workflow--replace-subject subject obj)))))
+    (user-error "There is no subject named %s" subject)))
 
 (provide 'frame-workflow)
 ;;; frame-workflow.el ends here
