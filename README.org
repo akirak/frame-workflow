@@ -4,6 +4,8 @@
 
 =frame-workflow.el= lets you define and organize per-frame workflow for Emacs. This is yet another workspace solution such as eyebrowse, perspective, and framegroups. It is frame-oriented and supports frame-specific states and actions. It is also designed to integrate with [[https://github.com/alphapapa/frame-purpose.el][frame-purpose.el]] which lets you focus on particular things inside a frame.
 
+For background on frame-workflow, see [[https://github.com/akirak/frame-workflow/wiki/Inspirations][Inspirations]] in the Wiki.
+
 * Installation
 This package requires Emacs 25.1.
 
@@ -36,6 +38,8 @@ To define a subject, use =frame-workflow-define-subject=:
 #+END_SRC
 
 Every frame subject requires a name, which is a string to uniquely identify the subject.
+
+For more examples, see [[https://github.com/akirak/frame-workflow/wiki/Configuration-Examples][a Wiki page]].
 
 ** Keybindings
 =frame-workflow-switch-frame= is a function that lets you switch to a frame for a given subject. You can use it to bind a key to switch to a particular workspace:
