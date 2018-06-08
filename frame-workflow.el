@@ -100,7 +100,11 @@
    (make-frame :initarg :make-frame
                :type (or function list)
                :initform #'make-frame
-               :documentation "A function that returns a new frame."))
+               :documentation "A function that returns a new frame.")
+   (layout :initarg :layout
+           :type list
+           :initform nil
+           :documentation "Lisp code run after frame creation."))
   "An object that specifies workflow on a frame.")
 
 (defun frame-workflow-define-subject (name &rest args)
@@ -141,6 +145,9 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
                                     'frame-workflow-observer)
                                   :subject subject :frame frame)))
     (set-frame-parameter frame 'workflow observer)
+    (when-let ((layout (oref subject layout)))
+      (with-selected-frame frame
+        (eval layout)))
     frame))
 
 ;;;; Observers
