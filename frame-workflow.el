@@ -238,7 +238,9 @@ If there are multiple frames of the subject, this returns only the first one."
   (unless frame-workflow-mode
     (user-error "Please turn on `frame-workflow-mode'"))
   (when-let ((frame (frame-workflow--find-frame-by-subject subject)))
-    (frame-workflow--select-frame frame)
+    (if (equal frame (selected-frame))
+        (message "Same frame for %s" subject)
+      (frame-workflow--select-frame frame))
     frame))
 
 (defun frame-workflow-switch-frame (subject)
