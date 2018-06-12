@@ -225,8 +225,9 @@ If there are multiple frames of the subject, this returns only the first one."
   (unless frame-workflow-mode
     (user-error "Please turn on `frame-workflow-mode'"))
   (if-let ((subject (cl-etypecase subject
-                      (string (frame-workflow--find-subject subject))
-                      (frame-workflow-subject subject))))
+                      (string (or (frame-workflow--find-subject subject)
+                                  (frame-workflow-define-subject subject)))
+                      (frame-workflow-subjnect subject))))
       (frame-workflow--make-frame subject)
     (user-error "There is no subject named %s" subject)))
 
