@@ -1,70 +1,21 @@
-# First, define the environment variables that drive EMake.
-EENVS  = PACKAGE_FILE="frame-workflow.el"
-# TODO: Add frame-workflow-purpose.el when it becomes available on MELPA
-EENVS += PACKAGE_LISP="frame-workflow.el"
-EENVS += PACKAGE_ARCHIVES="gnu melpa"
-EENVS += PACKAGE_TEST_DEPS="package-lint"
-EENVS += PACKAGE_TEST_ARCHIVES="melpa"
-# Then, make it easy to invoke Emacs with EMake loaded.
-EMAKE := $(EENVS) emacs -batch -l emake.el --eval "(emake (pop argv))"
+EMAKE_SHA1            := 9095599536e5b3ad8c34a3dd3362dbb92ebf701f
+PACKAGE_BASENAME      := frame-workflow
 
-# Set up our phony targets so Make doesn't think there are files by
-# these names.
-.PHONY: clean setup install compile test
+# override defaults
+PACKAGE_ARCHIVES      := gnu melpa
+# PACKAGE_TESTS         := test-sample.el # normally, EMake would discover these in the test/ directory
+PACKAGE_TEST_DEPS     := dash
+PACKAGE_TEST_ARCHIVES := gnu melpa
 
-# Instruct Make on how to create `emake.el'
-emake.el:
-	curl -OL 'https://raw.githubusercontent.com/vermiculus/emake.el/master/emake.el'
+include emake.mk
 
-# Instruct Make on how to create `emacs-travis.mk'
-emacs-travis.mk:
-	curl -OL 'https://raw.githubusercontent.com/flycheck/emacs-travis/master/emacs-travis.mk'
+.DEFAULT_GOAL: help
 
-# Teach Make that '.elpa/' is created by `(emake "install")'
-.elpa/: emake.el
-	$(EMAKE) install
+### Bootstrap and convenience targets
 
-## Phony targets
+emake.mk:                       ## download the emake Makefile
+	curl -O 'https://raw.githubusercontent.com/vermiculus/emake.el/$(EMAKE_SHA1)/emake.mk'
 
-# Tell Make how to 'clean' this project
-clean:
-	rm -f *.elc		# delete compiled files
-	rm -rf .elpa/		# delete dependencies
-	rm -rf .elpa.test/
-	rm -f emacs-travis.mk	# delete scripts
-	rm -f emake.el
-
-# Tell Make how to 'setup' this project (e.g., for Travis).  This
-# requires both Emacs to be installed and the `emake.el' script to be
-# available.
-setup: emacs emake.el
-
-# 'install' just means to create the .elpa/ directory (i.e., download dependencies)
-install: .elpa/
-
-# We want to clean before we compile.
-compile:
-	rm -f *.elc
-	$(EMAKE) compile ~error-on-warn
-
-# Testing needs dependencies
-test: test-package-lint test-checkdoc
-
-test-checkdoc: .elpa/
-	$(EMAKE) test checkdoc
-
-test-package-lint: .elpa/
-	$(EMAKE) test package-lint
-
-# The following lets you run this Makefile locally without installing
-# Emacs over and over again.  On Travis (and other CI services), the
-# $CI environment variable is available as "true"; take advantage of
-# this to provide two different implementations of the `emacs' target.
-ifeq ($(CI),true)
-emacs: emacs-travis.mk		# This is CI.  Emacs may not be available, so install it.
-	export PATH="$(HOME)/bin:$(PATH)"
-	make -f emacs-travis.mk install_emacs
-else
-emacs:				# This is not CI.  Emacs should already be available.
-	which emacs && emacs --version
-endif
+# test: test-ert test-buttercup   ## run tests
+test:
+lint: lint-package-lint lint-checkdoc ## run lints
