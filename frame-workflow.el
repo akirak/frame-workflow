@@ -130,6 +130,7 @@ ARGS is a plist of arguments passed to `frame-workflow-subject'."
 This is used to update a subject of the same name."
   ;; Replace references to old subjects from observers
   (cl-loop for observer in frame-workflow--observer-list
+           ;; FIXME: Fix warning \"Unknown slot ‘subject’\"
            when (eq (oref observer subject) old)
            do (oset observer subject new))
   ;; Delete the old subject from the instance list
