@@ -123,7 +123,8 @@ ARGS is a plist of arguments passed to `frame-workflow-subject'."
       (frame-workflow--replace-subject existing new))
     new))
 
-(defun frame-workflow--replace-subject (old new)
+(cl-defmethod frame-workflow--replace-subject ((old frame-workflow-subject)
+                                               (new frame-workflow-subject))
   "Replace a subject OLD with NEW.
 
 This is used to update a subject of the same name."
@@ -278,7 +279,7 @@ If there are multiple frames of the subject, this returns only the first one."
         (lambda ()
           (let ((tmpfile (make-temp-file name)))
             (write-file tmpfile)
-            (let ((obj (eieio-persistent-read tmpfile frame-workflow-subject t)))
+            (let ((obj (eieio-persistent-read tmpfile 'frame-workflow-subject t)))
               (frame-workflow--replace-subject subject obj)))))
     (user-error "There is no subject named %s" subject)))
 
