@@ -61,7 +61,7 @@ discarding it."
             (progn (kill-buffer buf)
                    (setq buf nil))
           (pop-to-buffer buf)
-          (throw 'abort)))
+          (throw 'abort 'conflict)))
       (with-current-buffer (or buf (generate-new-buffer bufname))
         (erase-buffer)
         (kill-all-local-variables)
