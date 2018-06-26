@@ -11,3 +11,5 @@
 (frame-workflow-define-subject "emacs-lisp")
 
 ;; TODO: Configure a modeline
+
+(prin1 frame-workflow--subject-list)

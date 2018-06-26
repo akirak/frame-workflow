@@ -23,3 +23,4 @@ script:
 - make test                     # test uncompiled
 - make compile                  # test compilation
 - make test                     # test compiled
+- emacs -Q --batch --script devel/init.el
