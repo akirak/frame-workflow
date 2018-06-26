@@ -287,7 +287,8 @@ If there are multiple frames of the subject, this returns only the first one."
   (unless frame-workflow-mode
     (user-error "Please turn on `frame-workflow-mode'"))
   (when-let ((frame (or frame (selected-frame)))
-             (subject (oref (frame-workflow--frame-observer frame) subject))
+             (observer (frame-workflow--frame-observer frame))
+             (subject (oref observer subject))
              (layout (oref subject layout)))
     (with-selected-frame frame
       (eval layout))))
