@@ -95,9 +95,6 @@
                    :initform 'frame-workflow-observer
                    :type class
                    :documentation "`frame-workflow-observer' class or its subclass.")
-   ;; TODO
-   ;; (layout :initarg :layout
-   ;;         :documentation "S-expression evalated to set up windows in each frame.")
    (make-frame :initarg :make-frame
                :type (or function list)
                :initform #'make-frame
