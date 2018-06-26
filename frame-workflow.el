@@ -281,5 +281,16 @@ If there are multiple frames of the subject, this returns only the first one."
               (frame-workflow--replace-subject subject obj)))))
     (user-error "There is no subject named %s" subject)))
 
+(defun frame-workflow-reload-layout (&optional frame)
+  "Reload the default layout of FRAME."
+  (interactive)
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
+  (when-let ((frame (or frame (selected-frame)))
+             (subject (oref (frame-workflow--frame-observer frame) subject))
+             (layout (oref subject layout)))
+    (with-selected-frame frame
+      (eval layout))))
+
 (provide 'frame-workflow)
 ;;; frame-workflow.el ends here
