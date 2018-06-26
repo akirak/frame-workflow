@@ -52,6 +52,8 @@ lint: install
 	$(EMAKE) test package-lint
 	$(EMAKE) test checkdoc
 
+test:
+
 compile: install
 	rm -f $(PACKAGE_LISP:.el=.elc)
 	$(EMAKE) compile ~error-on-warn
