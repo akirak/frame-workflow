@@ -91,7 +91,7 @@
   (when-let ((window (get-buffer-window)))
     (setq frame-workflow--buffer-killed
           (frame-workflow--frame-observer (window-frame window)))
-    (run-with-timer 0.02 nil #'frame-workflow--post-kill-buffer)))
+    (run-with-timer 0.025 nil #'frame-workflow--post-kill-buffer)))
 
 (defun frame-workflow--post-kill-buffer ()
   "Hook run after a buffer is killed."
