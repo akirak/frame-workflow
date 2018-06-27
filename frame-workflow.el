@@ -102,7 +102,12 @@
    (layout :initarg :layout
            :type list
            :initform nil
-           :documentation "Lisp code run after frame creation."))
+           :documentation "Lisp code run after frame creation.")
+   (refocus :initarg :refocus
+            :type list
+            :initform nil
+            :documentation "Lisp code run when explicitly switching to an
+existing frame of the subject."))
   "An object that specifies workflow on a frame.")
 
 (defun frame-workflow-define-subject (name &rest args)
@@ -210,7 +215,7 @@ If there are multiple frames of the subject, this returns only the first one."
                                                     'frame-workflow--observer-list)))
     (oref observer frame)))
 
-(defun frame-workflow--select-frame (frame)
+(cl-defun frame-workflow--select-frame (frame)
   "Internal function to select FRAME."
   ;; TODO: Make this customizable
   (select-frame-set-input-focus frame))
@@ -240,6 +245,10 @@ If there are multiple frames of the subject, this returns only the first one."
     (if (equal frame (selected-frame))
         (message "Same frame for %s" subject)
       (frame-workflow--select-frame frame))
+    (when-let ((observer (frame-workflow--frame-observer frame))
+               (subject (oref observer subject))
+               (refocus-hook (oref subject refocus)))
+      (eval refocus-hook))
     frame))
 
 (defun frame-workflow-switch-frame (subject)
