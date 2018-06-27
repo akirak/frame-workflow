@@ -42,6 +42,9 @@
 (defvar frame-workflow--subject-list nil "Used by `eieio-instance-tracker'.")
 (defvar frame-workflow--observer-list nil "Used by `eieio-instance-tracker'.")
 
+(defvar frame-workflow--buffer-killed nil
+  "Observer instance where a buffer was killed.")
+
 ;;;;; Modeline
 
 (defcustom frame-workflow-mode-line
@@ -70,16 +73,36 @@
 
 (defun frame-workflow--enable ()
   "Turn on `frame-workflow-mode'."
+  (add-hook 'kill-buffer-hook 'frame-workflow--kill-buffer-hook t)
   (add-hook 'delete-frame-functions 'frame-workflow--delete-frame t))
 
 (defun frame-workflow--disable ()
   "Turn off `frame-workflow-mode'."
+  (remove-hook 'kill-buffer-hook 'frame-workflow--kill-buffer-hook)
   (remove-hook 'delete-frame-functions 'frame-workflow--delete-frame))
 
 (defun frame-workflow--delete-frame (frame)
   "Run hooks for frame-workflow on deleting FRAME."
   (when-let ((observer (frame-parameter frame 'workflow)))
     (delete-instance observer)))
+
+(defun frame-workflow--kill-buffer-hook ()
+  "Hook run when a buffer is being killed."
+  (when-let ((window (get-buffer-window)))
+    (setq frame-workflow--buffer-killed
+          (frame-workflow--frame-observer (window-frame window)))
+    (run-with-timer 0.02 nil #'frame-workflow--post-kill-buffer)))
+
+(defun frame-workflow--post-kill-buffer ()
+  "Hook run after a buffer is killed."
+  (unwind-protect
+      (when-let ((observer frame-workflow--buffer-killed)
+                 (frame (oref observer frame))
+                 (subject (oref observer subject))
+                 (after-kill-buffer (oref subject after-kill-buffer)))
+        (with-selected-frame frame
+          (eval after-kill-buffer)))
+    (setq frame-workflow--buffer-killed nil)))
 
 ;;;; Subjects
 
@@ -107,7 +130,11 @@
             :type list
             :initform nil
             :documentation "Lisp code run when explicitly switching to an
-existing frame of the subject."))
+existing frame of the subject.")
+   (after-kill-buffer :initarg :after-kill-buffer
+                      :type list
+                      :initform nil
+                      :documentation "Lisp code run after a buffer is killed."))
   "An object that specifies workflow on a frame.")
 
 (defun frame-workflow-define-subject (name &rest args)
