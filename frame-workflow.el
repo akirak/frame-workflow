@@ -238,14 +238,31 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
 
 If there are multiple frames of the subject, this returns only the first one."
   (when-let ((subject (frame-workflow--find-subject name))
-             (observer (eieio-instance-tracker-find subject 'subject
-                                                    'frame-workflow--observer-list)))
+             (observer (frame-workflow--find-observer 'subject subject)))
     (oref observer frame)))
 
 (cl-defun frame-workflow--select-frame (frame)
   "Internal function to select FRAME."
   ;; TODO: Make this customizable
   (select-frame-set-input-focus frame))
+
+(defun frame-workflow--find-observer (slot key &optional no-clean-up)
+  "Find an observer instance that matches the condition.
+
+This function internally uses `eieio-instance-tracker-find' to find an instance
+whose SLOT is KEY.  It also deletes observers that are linked to dead frames
+using `frame-workflow--clean-up-observers' before advance to ensure that
+the result is \"live\". To skip this clean-up step, set NO-CLEAN-UP to non-nil."
+  (unless no-clean-up
+    (frame-workflow--clean-up-observers))
+  (eieio-instance-tracker-find key slot 'frame-workflow--observer-list))
+
+(defun frame-workflow--clean-up-observers ()
+  "Delete observers that are linked to dead frames."
+  (mapc (lambda (observer)
+          (unless (frame-live-p (oref observer frame))
+            (delete-instance observer)))
+        frame-workflow--observer-list))
 
 ;;;; Interactive commands
 
