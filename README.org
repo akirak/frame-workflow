@@ -83,6 +83,9 @@ You can use the following commands to switch the context:
 | =frame-workflow-make-frame=   | No             | Yes            |
 | =frame-workflow-select-frame= | Yes            | No             |
 | =frame-workflow-switch-frame= | Yes            | Yes            |
+
+There is also =frame-workflow-switch-directory-frame=, which is like =frame-workflow-switch-frame= but switches to a frame for a directory subject.
+
 * Contribution
 Any comments and patches on this package are welcome. Create a ticket or a pull request on GitHub.
 * License
