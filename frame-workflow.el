@@ -38,6 +38,7 @@
 (require 'frame-workflow-editor)
 
 (declare-function #'magit-status "magit")
+(declare-function #'magit-display-buffer-same-window-except-diff-v1 "magit")
 (declare-function #'frame-purpose-make-directory-frame "frame-purpose")
 
 ;;;; Variables
@@ -127,6 +128,7 @@ directory."
 (defun frame-workflow--post-kill-buffer ()
   "Hook run after a buffer is killed."
   (unwind-protect
+      ;; TODO: Is it possible to explicitly cast an EIEIO object?
       (when-let ((observer frame-workflow--buffer-killed)
                  (frame (oref observer frame))
                  (subject (oref observer subject))
@@ -415,6 +417,7 @@ If DIR is omitted, it defaults to `default-directory."
 
 This function is intended as the value for
 `frame-workflow-directory-frame-action'."
+  (require 'magit)
   (let ((magit-display-buffer-function
          #'magit-display-buffer-same-window-except-diff-v1))
     (magit-status)))
