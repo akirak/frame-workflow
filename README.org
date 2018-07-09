@@ -54,6 +54,20 @@ It is also a command that lets you select a subject via =completing-read=:
 #+BEGIN_SRC emacs-lisp
   (global-set-key "s-s" 'frame-workflow-switch-frame)
 #+END_SRC
+
+** Directory subjects and projectile integration
+Frame-workflow provides a set of utilities to work with *directory subjects*. =frame-workflow-switch-directory-frame= function defines a subject for a directory and switches to a frame for the subject.
+
+If you are using projectile package, it may be a good idea to use this function as =projectile-switch-project-action=:
+
+#+begin_src emacs-lisp
+  (setq projectile-switch-project-action #'frame-workflow-switch-directory-frame)
+#+end_src
+
+Directory subjects integrate with [[https://github.com/alphapapa/frame-purpose.el][frame-purpose.el]]. By default, frame-workflow uses frame-purpose to create a frame for a directory subject, so the frame becomes a purpose-specific frame for the directory. This means the buffer list on the frame is limited to buffers in the directory. If you want to turn off this feature, set =frame-workflow-use-frame-purpose-for-directory= to nil.
+
+By default, if magit is installed, a new frame for a directory subject runs =magit-status=. This can be changed to another function by customizing =frame-workflow-directory-frame-action=. If it is nil, directory subjects do nothing on frame creation.
+
 * Usage
 ** helm-frame-workflow
 =helm-frame-workflow= in =helm-frame-workflow.el= is a command which lets you switch to a frame or create a new frame for a subject. It provides access to all the basic functionalities of frame-workflow.
