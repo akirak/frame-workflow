@@ -266,11 +266,15 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
   (when-let ((observer (frame-workflow--frame-observer frame)))
     (frame-workflow--subject-name observer)))
 
-(defun frame-workflow--find-frame-by-subject (name)
-  "Find a frame by the NAME of a subject.
+(defun frame-workflow--find-frame-by-subject (subject)
+  "Find a frame by SUBJECT.
+
+SUBJECT can be either the name of a subject or an instance.
 
 If there are multiple frames of the subject, this returns only the first one."
-  (when-let ((subject (frame-workflow--find-subject name))
+  (when-let ((subject (cl-typecase subject
+                        (frame-workflow-subject subject)
+                        (string (frame-workflow--find-subject subject))))
              (observer (frame-workflow--find-observer 'subject subject)))
     (oref observer frame)))
 
@@ -320,7 +324,9 @@ the result is \"live\". To skip this clean-up step, set NO-CLEAN-UP to non-nil."
     (user-error "Please turn on `frame-workflow-mode'"))
   (when-let ((frame (frame-workflow--find-frame-by-subject subject)))
     (if (equal frame (selected-frame))
-        (message "Same frame for %s" subject)
+        (message "Same frame for %s" (cl-typecase subject
+                                       (frame-workflow-subject (oref subject name))
+                                       (string subject)))
       (frame-workflow--select-frame frame))
     (when-let ((observer (frame-workflow--frame-observer frame))
                (subject (oref observer subject))
@@ -381,15 +387,19 @@ the result is \"live\". To skip this clean-up step, set NO-CLEAN-UP to non-nil."
 
 ;;;; Extra features
 ;;;;; Directory subjects
-(defun frame-workflow-make-directory-frame (&optional dir)
-  "Create a new frame for DIR.
+
+;;;###autoload
+(defun frame-workflow-switch-directory-frame (&optional dir)
+  "Switch to a subject for DIR.
 
 This is intended for use as `projectile-switch-project-action'.
 
 This function defines a new subject for the given directory
-(if it is not defined yet) and creates a frame for the subject.
-The name of the created subject is the name of the directory without
-its preceding path.
+(if it is not defined yet) and selects or creates a frame
+for the subject.
+
+The name of the created subject will be name of the directory
+without its preceding path.
 
 If `frame-purpose-mode' is turned on and
 `frame-workflow-use-frame-purpose-for-directory' is non-nil,
@@ -397,6 +407,8 @@ the created frame becomes a directory-purpose frame.
 
 If DIR is omitted, it defaults to `default-directory."
   (interactive)
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
   (let* ((dir (expand-file-name (or dir default-directory)))
          (name (file-name-nondirectory (string-remove-suffix "/" dir)))
          (subject (or (frame-workflow--find-subject name)
@@ -412,7 +424,7 @@ If DIR is omitted, it defaults to `default-directory."
                                     frame-workflow-use-frame-purpose-for-directory)
                                (frame-purpose-make-directory-frame ,dir)
                              (make-frame)))))))
-    (frame-workflow-make-frame subject)))
+    (frame-workflow-switch-frame subject)))
 
 (defun frame-workflow-magit-same-window ()
   "Run `magit-status' in the same window.
