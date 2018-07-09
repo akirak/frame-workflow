@@ -37,7 +37,7 @@ To define a subject, use =frame-workflow-define-subject=:
     :make-frame '(frame-purpose-make-mode-frame 'emacs-lisp-mode))
 #+END_SRC
 
-Every frame subject requires a name, which is a string to uniquely identify the subject.
+Every subject requires a name, which is a string to uniquely identify the subject.
 
 For more examples, see [[https://github.com/akirak/frame-workflow/wiki/Configuration-Examples][a Wiki page]].
 
@@ -56,7 +56,7 @@ It is also a command that lets you select a subject via =completing-read=:
 #+END_SRC
 
 ** Directory subjects and projectile integration
-Frame-workflow provides a set of utilities to work with *directory subjects*. =frame-workflow-switch-directory-frame= function defines a subject for a directory and switches to a frame for the subject.
+Frame-workflow provides a set of utilities to work with /directory subjects/. =frame-workflow-switch-directory-frame= function defines a subject for a directory and switches to a frame for the subject.
 
 If you are using projectile package, it may be a good idea to use this function as =projectile-switch-project-action=:
 
