@@ -37,6 +37,9 @@
 (autoload 'eieio-customize-object "eieio-custom")
 (require 'frame-workflow-editor)
 
+(declare-function #'magit-status "magit")
+(declare-function #'frame-purpose-make-directory-frame "frame-purpose")
+
 ;;;; Variables
 
 (defvar frame-workflow--subject-list nil "Used by `eieio-instance-tracker'.")
@@ -57,6 +60,34 @@
   :group 'frame-workflow
   :type 'sexp
   :risky t)
+
+;;;; Other customizations
+
+(defcustom frame-workflow-directory-frame-action
+  (if (fboundp #'magit-status)
+      #'frame-workflow-magit-same-window
+    (lambda () (dired default-directory)))
+  "Function called after a directory frame is created.
+
+This function is called in `frame-workflow-make-directory-frame'
+after a directory frame is called.  The function is called with
+`default-directory' set to the directory.
+
+If this value is nil, no function is called in directory frames."
+  :type 'function
+  :group 'frame-workflow)
+
+(defcustom frame-workflow-use-frame-purpose-for-directory t
+  "Use frame-purpose to create a directory frame.
+
+If this value is non-nil, directory subjects defined by
+`frame-workflow-make-directory-frame' uses
+`frame-purpose-make-directory-frame' to create a new frame for a given
+directory.  The frame becomes a purpose-specific frame for
+the directory, which makes it easy for you to focus on files in the
+directory."
+  :type 'boolean
+  :group 'frame-workflow)
 
 ;;;; Minor mode
 
@@ -345,6 +376,48 @@ the result is \"live\". To skip this clean-up step, set NO-CLEAN-UP to non-nil."
              (layout (oref subject layout)))
     (with-selected-frame frame
       (eval layout))))
+
+;;;; Extra features
+;;;;; Directory subjects
+(defun frame-workflow-make-directory-frame (&optional dir)
+  "Create a new frame for DIR.
+
+This is intended for use as `projectile-switch-project-action'.
+
+This function defines a new subject for the given directory
+(if it is not defined yet) and creates a frame for the subject.
+The name of the created subject is the name of the directory without
+its preceding path.
+
+If `frame-purpose-mode' is turned on and
+`frame-workflow-use-frame-purpose-for-directory' is non-nil,
+the created frame becomes a directory-purpose frame.
+
+If DIR is omitted, it defaults to `default-directory."
+  (interactive)
+  (let* ((dir (expand-file-name (or dir default-directory)))
+         (name (file-name-nondirectory (string-remove-suffix "/" dir)))
+         (subject (or (frame-workflow--find-subject name)
+                      (frame-workflow-define-subject name
+                        :make-frame
+                        `(if (and (bound-and-true-p frame-purpose-mode)
+                                  frame-workflow-use-frame-purpose-for-directory)
+                             (frame-purpose-make-directory-frame ,dir)
+                           (make-frame)))))
+         (default-directory dir)
+         (frame (frame-workflow-make-frame subject)))
+    (when (functionp frame-workflow-directory-frame-action)
+      (with-selected-frame frame
+        (funcall frame-workflow-directory-frame-action)))))
+
+(defun frame-workflow-magit-same-window ()
+  "Run `magit-status' in the same window.
+
+This function is intended as the value for
+`frame-workflow-directory-frame-action'."
+  (let ((magit-display-buffer-function
+         #'magit-display-buffer-same-window-except-diff-v1))
+    (magit-status)))
 
 (provide 'frame-workflow)
 ;;; frame-workflow.el ends here
