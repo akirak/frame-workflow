@@ -400,17 +400,19 @@ If DIR is omitted, it defaults to `default-directory."
   (let* ((dir (expand-file-name (or dir default-directory)))
          (name (file-name-nondirectory (string-remove-suffix "/" dir)))
          (subject (or (frame-workflow--find-subject name)
+                      ;; TODO: Add a class for directory subjects and use it
                       (frame-workflow-define-subject name
+                        :layout
+                        `(let ((default-directory ,dir))
+                           (when (functionp frame-workflow-directory-frame-action)
+                             (funcall frame-workflow-directory-frame-action)))
                         :make-frame
-                        `(if (and (bound-and-true-p frame-purpose-mode)
-                                  frame-workflow-use-frame-purpose-for-directory)
-                             (frame-purpose-make-directory-frame ,dir)
-                           (make-frame)))))
-         (default-directory dir)
-         (frame (frame-workflow-make-frame subject)))
-    (when (functionp frame-workflow-directory-frame-action)
-      (with-selected-frame frame
-        (funcall frame-workflow-directory-frame-action)))))
+                        `(let ((default-directory ,dir))
+                           (if (and (bound-and-true-p frame-purpose-mode)
+                                    frame-workflow-use-frame-purpose-for-directory)
+                               (frame-purpose-make-directory-frame ,dir)
+                             (make-frame)))))))
+    (frame-workflow-make-frame subject)))
 
 (defun frame-workflow-magit-same-window ()
   "Run `magit-status' in the same window.
