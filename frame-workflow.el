@@ -65,9 +65,7 @@
 ;;;; Other customizations
 
 (defcustom frame-workflow-directory-frame-action
-  (if (fboundp #'magit-status)
-      #'frame-workflow-magit-same-window
-    (lambda () (dired default-directory)))
+  #'frame-workflow-maybe-magit
   "Function called after a directory frame is created.
 
 This function is called in `frame-workflow-make-directory-frame'
@@ -435,6 +433,12 @@ This function is intended as the value for
   (let ((magit-display-buffer-function
          #'magit-display-buffer-same-window-except-diff-v1))
     (magit-status)))
+
+(defun frame-workflow-maybe-magit ()
+  "Run `magit-status' if it is available.  Otherwise, run dired."
+  (if (fboundp #'magit-status)
+      (frame-workflow-magit-same-window)
+    (dired default-directory)))
 
 (provide 'frame-workflow)
 ;;; frame-workflow.el ends here
