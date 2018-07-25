@@ -93,6 +93,21 @@ directory."
   :type 'boolean
   :group 'frame-workflow)
 
+(defcustom frame-workflow-subject-keys nil
+  "Alist of keybindings to switch to a particular subject.
+
+These keybindings are accessible in `frame-workflow-map'."
+  :type '(alist :key-type (string :tag "Key (usually one letter)")
+                :value-type (string :tag "Subject"))
+  :group 'frame-workflow
+  :set (lambda (symbol value)
+         (set-default symbol value)
+         (cl-loop for (key . subject) in value
+                  do (define-key frame-workflow-map (kbd key)
+                       (lambda ()
+                         (interactive)
+                         (frame-workflow-switch-frame subject))))))
+
 ;;;; Minor mode
 
 (define-minor-mode frame-workflow-mode
