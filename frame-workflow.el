@@ -49,6 +49,11 @@
 (defvar frame-workflow--buffer-killed nil
   "Observer instance where a buffer was killed.")
 
+(define-prefix-command 'frame-workflow-prefix-map)
+(define-key frame-workflow-prefix-map (kbd "R") #'frame-workflow-reload-layout)
+(define-key frame-workflow-prefix-map (kbd "/") #'frame-workflow-select-frame)
+(define-key frame-workflow-prefix-map (kbd "=") #'frame-workflow-make-frame)
+
 ;;;;; Modeline
 
 (defcustom frame-workflow-mode-line
