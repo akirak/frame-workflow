@@ -42,7 +42,29 @@ Every subject requires a name, which is a string to uniquely identify the subjec
 For more examples, see [[https://github.com/akirak/frame-workflow/wiki/Configuration-Examples][a Wiki page]].
 
 ** Keybindings
-=frame-workflow-switch-frame= is a function that lets you switch to a frame for a given subject. You can use it to bind a key to switch to a particular workspace:
+Frame-workflow provides a prefix map named =frame-workflow-prefix-map= for commands in the package.
+It may be convenient to bind a key to this command:
+
+#+begin_src emacs-lisp
+(global-set-key "s-g" #'frame-workflow-prefix-map)
+#+end_src
+
+You can also define keybindings to switch to a particular subject on this prefix map, and there are two ways to do that:
+
+- Customize =frame-workflow-prefix-subject-keys=.
+- Set =:key= option when you define a subject.
+
+The latter can be configured as in the following example:
+
+#+begin_src emacs-lisp
+  (frame-workflow-define-subject "emacs-lisp"
+    :key "e"
+    ...)
+#+end_src
+
+Then you can use =s-g e= to switch to =emacs-lisp= subject.
+
+There is also a manual way. =frame-workflow-switch-frame= is a function that lets you switch to a frame for a given subject. You can use it to bind a key to switch to a particular workspace:
 
 #+BEGIN_SRC emacs-lisp
   (global-set-key (kbd "s-g e")
@@ -54,7 +76,6 @@ It is also a command that lets you select a subject via =completing-read=:
 #+BEGIN_SRC emacs-lisp
   (global-set-key "s-s" 'frame-workflow-switch-frame)
 #+END_SRC
-
 ** Directory subjects and projectile integration
 Frame-workflow provides a set of utilities to work with /directory subjects/. =frame-workflow-switch-directory-frame= function defines a subject for a directory and switches to a frame for the subject.
 
