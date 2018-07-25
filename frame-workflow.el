@@ -43,6 +43,9 @@
 
 ;;;; Variables
 
+(defconst frame-workflow-switch-frame-function-prefix
+  "frame-workflow-switch-to-subject/")
+
 (defvar frame-workflow--subject-list nil "Used by `eieio-instance-tracker'.")
 (defvar frame-workflow--observer-list nil "Used by `eieio-instance-tracker'.")
 
@@ -93,20 +96,35 @@ directory."
   :type 'boolean
   :group 'frame-workflow)
 
+;; Because this function is used inside a definition of
+;; `frame-workflow-subject-keys' custom variable, it must be defined
+;; before the variable.  This is irregular, but I didn't find
+;; a better solution.
+(defun frame-workflow-make-switch-subject (subject)
+  "Make a command to switch to SUBJECT."
+  (let ((func-name (intern (concat frame-workflow-switch-frame-function-prefix subject))))
+    (eval
+     `(defun ,func-name ()
+        (interactive)
+        (frame-workflow-switch-frame ,subject)))))
+
+;; Add a name-based which-key replacement rule.
+(add-hook 'which-key-replacement-alist
+          `((nil . ,frame-workflow-switch-frame-function-prefix) .
+            (nil . "")))
+
 (defcustom frame-workflow-subject-keys nil
   "Alist of keybindings to switch to a particular subject.
 
-These keybindings are accessible in `frame-workflow-map'."
+These keybindings are accessible in `frame-workflow-prefix-map'."
   :type '(alist :key-type (string :tag "Key (usually one letter)")
                 :value-type (string :tag "Subject"))
   :group 'frame-workflow
   :set (lambda (symbol value)
          (set-default symbol value)
          (cl-loop for (key . subject) in value
-                  do (define-key frame-workflow-map (kbd key)
-                       (lambda ()
-                         (interactive)
-                         (frame-workflow-switch-frame subject))))))
+                  do (define-key frame-workflow-prefix-map (kbd key)
+                       (frame-workflow-make-switch-subject subject)))))
 
 ;;;; Minor mode
 
