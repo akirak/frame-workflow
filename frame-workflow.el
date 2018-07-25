@@ -206,17 +206,26 @@ existing frame of the subject.")
                       :documentation "Lisp code run after a buffer is killed."))
   "An object that specifies workflow on a frame.")
 
-(defun frame-workflow-define-subject (name &rest args)
+(cl-defun frame-workflow-define-subject (name &rest args
+                                              &key key
+                                              &allow-other-keys)
   "Define a workflow subject.
 
 NAME is a string to uniquely identify the subject.
 
-ARGS is a plist of arguments passed to `frame-workflow-subject'."
+ARGS is a plist of arguments passed to `frame-workflow-subject'.
+
+You can define KEY to switch to the subject.  This is bound on
+`frame-workflow-prefix-map'.  This should be a string."
   (declare (indent 1))
+  (cl-remf args :key)
   (let ((existing (frame-workflow--find-subject name))
         (new (apply #'make-instance 'frame-workflow-subject
                     :name name :file name
                     args)))
+    (when key
+      (define-key frame-workflow-prefix-map (kbd key)
+        (frame-workflow-make-switch-subject name)))
     (when existing
       (frame-workflow--replace-subject existing new))
     new))
