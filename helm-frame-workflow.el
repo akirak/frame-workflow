@@ -3,7 +3,9 @@
 ;; Copyright (C) 2018 by Akira Komamura
 
 ;; Author: Akira Komamura <akira.komamura@gmail.com>
-;; Version: 0.1.0
+;; Version: 1.0-pre
+;; Package-Requires: ((emacs "25.1") (helm "2.7.0"))
+;; URL: https://github.com/akirak/frame-workflow
 
 ;; This file is not part of GNU Emacs.
 
