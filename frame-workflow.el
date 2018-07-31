@@ -37,9 +37,9 @@
 (autoload 'eieio-customize-object "eieio-custom")
 (require 'frame-workflow-editor)
 
-(declare-function #'magit-status "magit")
-(declare-function #'magit-display-buffer-same-window-except-diff-v1 "magit")
-(declare-function #'frame-purpose-make-directory-frame "frame-purpose")
+(declare-function magit-status "magit")
+(declare-function magit-display-buffer-same-window-except-diff-v1 "magit")
+(declare-function frame-purpose-make-directory-frame "frame-purpose")
 
 ;;;; Variables
 
@@ -52,10 +52,12 @@
 (defvar frame-workflow--buffer-killed nil
   "Observer instance where a buffer was killed.")
 
+(defvar frame-workflow-prefix-map)
 (define-prefix-command 'frame-workflow-prefix-map)
-(define-key frame-workflow-prefix-map (kbd "R") #'frame-workflow-reload-layout)
-(define-key frame-workflow-prefix-map (kbd "/") #'frame-workflow-select-frame)
-(define-key frame-workflow-prefix-map (kbd "=") #'frame-workflow-make-frame)
+(cl-letf ((map frame-workflow-prefix-map))
+  (define-key map (kbd "R") #'frame-workflow-reload-layout)
+  (define-key map (kbd "/") #'frame-workflow-select-frame)
+  (define-key map (kbd "=") #'frame-workflow-make-frame))
 
 ;;;;; Modeline
 
@@ -161,18 +163,6 @@ These keybindings are accessible in `frame-workflow-prefix-map'."
           (frame-workflow--frame-observer (window-frame window)))
     (run-with-timer 0.025 nil #'frame-workflow--post-kill-buffer)))
 
-(defun frame-workflow--post-kill-buffer ()
-  "Hook run after a buffer is killed."
-  (unwind-protect
-      ;; TODO: Is it possible to explicitly cast an EIEIO object?
-      (when-let ((observer frame-workflow--buffer-killed)
-                 (frame (oref observer frame))
-                 (subject (oref observer subject))
-                 (after-kill-buffer (oref subject after-kill-buffer)))
-        (with-selected-frame frame
-          (eval after-kill-buffer)))
-    (setq frame-workflow--buffer-killed nil)))
-
 ;;;; Subjects
 
 (defclass frame-workflow-subject (eieio-instance-tracker
@@ -236,10 +226,11 @@ You can define KEY to switch to the subject.  This is bound on
 
 This is used to update a subject of the same name."
   ;; Replace references to old subjects from observers
-  (cl-loop for observer in frame-workflow--observer-list
-           ;; FIXME: Fix warning \"Unknown slot ‘subject’\"
-           when (eq (oref observer subject) old)
-           do (oset observer subject new))
+  (mapc (lambda (obj)
+          (frame-worklflow--maybe-replace-subject
+           (cl-coerce obj 'frame-workflow-observer)
+           old new))
+        frame-workflow--observer-list)
   ;; Delete the old subject from the instance list
   (delete-instance old))
 
@@ -283,6 +274,12 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
 
 (cl-defmethod frame-workflow--subject-name ((obj frame-workflow-observer))
   (oref (oref obj subject) name))
+
+(cl-defmethod frame-worklflow--maybe-replace-subject ((obj frame-workflow-observer)
+                                                      (old frame-workflow-subject)
+                                                      (new frame-workflow-subject))
+  (when (eq (oref obj subject) old)
+    (oset obj subject new)))
 
 ;;;; Utility functions
 
@@ -345,6 +342,19 @@ the result is \"live\". To skip this clean-up step, set NO-CLEAN-UP to non-nil."
           (unless (frame-live-p (oref observer frame))
             (delete-instance observer)))
         frame-workflow--observer-list))
+
+(defun frame-workflow--post-kill-buffer ()
+  "Hook run after a buffer is killed."
+  (unwind-protect
+      (when-let ((observer-non-nil frame-workflow--buffer-killed)
+                 (observer (cl-coerce observer-non-nil
+                                      'frame-workflow-observer))
+                 (frame (oref observer frame))
+                 (subject (oref observer subject))
+                 (after-kill-buffer (oref subject after-kill-buffer)))
+        (with-selected-frame frame
+          (eval after-kill-buffer)))
+    (setq frame-workflow--buffer-killed nil)))
 
 ;;;; Interactive commands
 
@@ -479,7 +489,7 @@ This function is intended as the value for
   (require 'magit)
   (let ((magit-display-buffer-function
          #'magit-display-buffer-same-window-except-diff-v1))
-    (magit-status)))
+    (call-interactively #'magit-status)))
 
 (defun frame-workflow-maybe-magit ()
   "Run `magit-status' if it is available.  Otherwise, run dired."
