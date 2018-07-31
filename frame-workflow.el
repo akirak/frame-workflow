@@ -37,9 +37,7 @@
 (autoload 'eieio-customize-object "eieio-custom")
 (require 'frame-workflow-editor)
 
-(declare-function magit-status "magit")
-(declare-function magit-display-buffer-same-window-except-diff-v1 "magit")
-(declare-function frame-purpose-make-directory-frame "frame-purpose")
+(declare-function frame-workflow-magit-same-window "frame-workflow-magit")
 
 ;;;; Variables
 
@@ -481,19 +479,10 @@ If DIR is omitted, it defaults to `default-directory."
                              (make-frame)))))))
     (frame-workflow-switch-frame subject)))
 
-(defun frame-workflow-magit-same-window ()
-  "Run `magit-status' in the same window.
-
-This function is intended as the value for
-`frame-workflow-directory-frame-action'."
-  (require 'magit)
-  (let ((magit-display-buffer-function
-         #'magit-display-buffer-same-window-except-diff-v1))
-    (call-interactively #'magit-status)))
-
 (defun frame-workflow-maybe-magit ()
   "Run `magit-status' if it is available.  Otherwise, run dired."
-  (if (fboundp #'magit-status)
+  (require 'frame-workflow-magit nil t)
+  (if (fboundp #'frame-workflow-magit-same-window)
       (frame-workflow-magit-same-window)
     (dired default-directory)))
 

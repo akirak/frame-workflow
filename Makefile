@@ -1,5 +1,5 @@
 EMAKE_SHA1            := 9095599536e5b3ad8c34a3dd3362dbb92ebf701f
-PACKAGE_LISP          := frame-workflow.el frame-workflow-editor.el helm-frame-workflow.el
+PACKAGE_LISP          := frame-workflow.el frame-workflow-magit.el frame-workflow-editor.el helm-frame-workflow.el
 
 PACKAGE_ARCHIVES      := gnu melpa
 #PACKAGE_TESTS         := test-sample.el # normally, EMake would discover these in the test/ directory
@@ -46,6 +46,7 @@ install-emacs: emacs-travis.mk	## build and install a fresh emacs
 
 install: .elpa
 	PACKAGE_FILE=frame-workflow.el $(EMAKE) install
+	PACKAGE_FILE=frame-workflow-magit.el $(EMAKE) install
 	PACKAGE_FILE=frame-workflow-editor.el $(EMAKE) install
 	PACKAGE_FILE=helm-frame-workflow.el $(EMAKE) install
 lint: install
