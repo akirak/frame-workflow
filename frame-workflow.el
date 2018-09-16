@@ -366,7 +366,9 @@ the result is \"live\". To skip this clean-up step, set NO-CLEAN-UP to non-nil."
                       (string (or (frame-workflow--find-subject subject)
                                   (frame-workflow-define-subject subject)))
                       (frame-workflow-subject subject))))
-      (frame-workflow--make-frame subject)
+      (let ((frame (frame-workflow--make-frame subject)))
+        (frame-workflow--select-frame frame)
+        frame)
     (user-error "There is no subject named %s" subject)))
 
 (defun frame-workflow-select-frame (subject)
