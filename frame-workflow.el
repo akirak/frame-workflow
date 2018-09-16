@@ -371,6 +371,16 @@ the result is \"live\". To skip this clean-up step, set NO-CLEAN-UP to non-nil."
         frame)
     (user-error "There is no subject named %s" subject)))
 
+(defun frame-workflow-replace-frame (subject)
+  "Create a frame of workflow SUBJECT and delete the current frame."
+  (interactive (list (completing-read "Create a frame: "
+                                      (frame-workflow--subject-names))))
+  (unless frame-workflow-mode
+    (user-error "Please turn on `frame-workflow-mode'"))
+  (let ((orig-frame (selected-frame)))
+    (frame-workflow-make-frame subject)
+    (delete-frame orig-frame)))
+
 (defun frame-workflow-select-frame (subject)
   "Select a frame of workflow SUBJECT."
   (interactive (list (completing-read "Select a frame: "
