@@ -128,6 +128,7 @@ These keybindings are accessible in `frame-workflow-prefix-map'."
 
 ;;;; Minor mode
 
+;;;###autoload
 (define-minor-mode frame-workflow-mode
   "Toggle `frame-workflow-mode`."
   :global t
