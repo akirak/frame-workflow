@@ -57,6 +57,9 @@
   (define-key map (kbd "/") #'frame-workflow-select-frame)
   (define-key map (kbd "=") #'frame-workflow-make-frame))
 
+(defvar frame-workflow-select-frame-hook nil
+  "Hooks run after a frame is selected.")
+
 ;;;;; Modeline
 
 (defcustom frame-workflow-mode-line
@@ -322,7 +325,8 @@ If there are multiple frames of the subject, this returns only the first one."
 (cl-defun frame-workflow--select-frame (frame)
   "Internal function to select FRAME."
   ;; TODO: Make this customizable
-  (select-frame-set-input-focus frame))
+  (select-frame-set-input-focus frame)
+  (run-hooks 'frame-workflow-select-frame-hook))
 
 (defun frame-workflow--find-observer (slot key &optional no-clean-up)
   "Find an observer instance that matches the condition.
