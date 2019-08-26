@@ -226,7 +226,7 @@ You can define KEY to switch to the subject.  This is bound on
 This is used to update a subject of the same name."
   ;; Replace references to old subjects from observers
   (mapc (lambda (obj)
-          (frame-worklflow--maybe-replace-subject
+          (frame-workflow--maybe-replace-subject
            (cl-coerce obj 'frame-workflow-observer)
            old new))
         frame-workflow--observer-list)
@@ -274,9 +274,9 @@ SUBJECT is an object of `frame-workflow-subject' class or its subclass."
 (cl-defmethod frame-workflow--subject-name ((obj frame-workflow-observer))
   (oref (oref obj subject) name))
 
-(cl-defmethod frame-worklflow--maybe-replace-subject ((obj frame-workflow-observer)
-                                                      (old frame-workflow-subject)
-                                                      (new frame-workflow-subject))
+(cl-defmethod frame-workflow--maybe-replace-subject ((obj frame-workflow-observer)
+                                                     (old frame-workflow-subject)
+                                                     (new frame-workflow-subject))
   (when (eq (oref obj subject) old)
     (oset obj subject new)))
 
