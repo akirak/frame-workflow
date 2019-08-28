@@ -60,6 +60,8 @@
 (defvar frame-workflow-select-frame-hook nil
   "Hooks run after a frame is selected.")
 
+(defvar frame-workflow-last-frame nil)
+
 ;;;;; Modeline
 
 (defcustom frame-workflow-mode-line
@@ -325,8 +327,19 @@ If there are multiple frames of the subject, this returns only the first one."
 (cl-defun frame-workflow--select-frame (frame)
   "Internal function to select FRAME."
   ;; TODO: Make this customizable
-  (select-frame-set-input-focus frame)
-  (run-hooks 'frame-workflow-select-frame-hook))
+  (if (equal frame (selected-frame))
+      (message "Already on the frame")
+    (setq frame-workflow-last-frame (selected-frame))
+    (select-frame-set-input-focus frame)
+    (run-hooks 'frame-workflow-select-frame-hook)))
+
+(defun frame-workflow-last-frame ()
+  "Go to the last frame."
+  (interactive)
+  (if (and frame-workflow-last-frame
+           (frame-live-p frame-workflow-last-frame))
+      (frame-workflow--select-frame frame-workflow-last-frame)
+    (message "No last frame")))
 
 (defun frame-workflow--find-observer (slot key &optional no-clean-up)
   "Find an observer instance that matches the condition.
